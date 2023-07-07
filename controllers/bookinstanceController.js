@@ -11,9 +11,23 @@ exports.bookinstance_list = asyncHandler(async (req, res, next) => {
     });
 });
 
-// Detailseite für eine bestimmte Buchinstanz anzeigen.
+// Detailseite für ein spezifisches Buchexemplar anzeigen.
 exports.bookinstance_detail = asyncHandler(async (req, res, next) => {
-    res.send(`NICHT IMPLEMENTIERT: Detail der Buchinstanz: ${req.params.id}`);
+    const bookInstance = await BookInstance.findById(req.params.id)
+        .populate("book")
+        .exec();
+
+    if (bookInstance === null) {
+        // Keine Ergebnisse.
+        const err = new Error("Buchexemplar nicht gefunden");
+        err.status = 404;
+        return next(err);
+    }
+
+    res.render("bookinstance_detail", {
+        title: "Buch:",
+        bookinstance: bookInstance,
+    });
 });
 
 // Anzeigen des Buchinstanzen-Erstellungsformulars bei GET.
